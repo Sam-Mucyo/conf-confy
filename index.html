@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese Philosophy Alignment</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #95a5a6;
+            --text: #2c3e50;
+            --background: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            background: var(--primary);
+            color: white;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .quiz-section {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .quiz-section.active {
+            display: block;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .question {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 4px;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: var(--secondary);
+        }
+
+        .option {
+            padding: 1rem;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+        }
+
+        .philosopher-match {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Chinese Philosophy Alignment</h1>
+    </header>
+
+    <div class="container">
+        <div class="start-screen active">
+            <h2>Discover Your Philosophical Alignment</h2>
+            <p>Answer questions to find which Classical Chinese philosopher you align with most.</p>
+            <button onclick="startQuiz()">Begin Journey</button>
+        </div>
+
+        <div class="quiz-section">
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            <div class="question"></div>
+            <div class="options"></div>
+        </div>
+
+        <div class="results">
+            <h2>Your Philosophical Alignment</h2>
+            <div class="philosopher-match"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "How do you view human nature?",
+                options: [
+                    { text: "People are inherently good and can be guided to virtue", philosopher: "Mencius" },
+                    { text: "People need education and ritual to become good", philosopher: "Xunzi" },
+                    { text: "People should follow the natural way without interference", philosopher: "Laozi" },
+                    { text: "People should focus on practical benefits for society", philosopher: "Mozi" }
+                ]
+            },
+            {
+                question: "What is the best approach to governance?",
+                options: [
+                    { text: "Minimal intervention, letting things follow their natural course", philosopher: "Laozi" },
+                    { text: "Strong institutions and clear social roles", philosopher: "Xunzi" },
+                    { text: "Moral education and leading by example", philosopher: "Confucius" },
+                    { text: "Promoting what benefits all people equally", philosopher: "Mozi" }
+                ]
+            },
+            {
+                question: "What is the most important virtue?",
+                options: [
+                    { text: "Benevolence and human-heartedness (ren)", philosopher: "Confucius" },
+                    { text: "Universal love and impartial care", philosopher: "Mozi" },
+                    { text: "Spontaneity and naturalness", philosopher: "Zhuangzi" },
+                    { text: "Ritual propriety and social order", philosopher: "Xunzi" }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let philosopherScores = {};
+
+        function startQuiz() {
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.quiz-section').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const questionData = questions[currentQuestion];
+            document.querySelector('.question').textContent = questionData.question;
+
+            const optionsContainer = document.querySelector('.options');
+            optionsContainer.innerHTML = '';
+
+            questionData.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option.text;
+                optionElement.onclick = () => selectOption(option.philosopher);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.querySelector('.progress').style.width = `${progress}%`;
+        }
+
+        function selectOption(philosopher) {
+            philosopherScores[philosopher] = (philosopherScores[philosopher] || 0) + 1;
+
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.querySelector('.quiz-section').classList.remove('active');
+            document.querySelector('.results').style.display = 'block';
+
+            const topPhilosopher = Object.entries(philosopherScores)
+                .sort((a, b) => b[1] - a[1])[0];
+
+            const matchElement = document.querySelector('.philosopher-match');
+            matchElement.innerHTML = `
+                <h3>You align most with ${topPhilosopher[0]}</h3>
+                <p>Score: ${topPhilosopher[1]} / ${questions.length}</p>
+            `;
+        }
+    </script>
+</body>
+
+</html>
