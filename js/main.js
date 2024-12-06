@@ -76,8 +76,10 @@ function showResults() {
     document.querySelector('.quiz-section').classList.remove('active');
     document.querySelector('.results').style.display = 'block';
 
-    const topPhilosopher = Object.entries(philosopherScores)
-        .sort((a, b) => b[1] - a[1])[0];
+    const sortedPhilosophers = Object.entries(philosopherScores)
+        .sort((a, b) => b[1] - a[1]);
+
+    const topPhilosopher = sortedPhilosophers[0];
 
     const philosopherDescriptions = {
         "Mencius": "You believe in the inherent goodness of humanity and value compassion and moral growth.",
@@ -93,4 +95,33 @@ function showResults() {
     <p>${philosopherDescriptions[topPhilosopher[0]]}</p>
     <p>Score: ${topPhilosopher[1]} / ${questions.length}</p>
 `;
+
+    showBarChart(sortedPhilosophers);
+}
+
+function showBarChart(sortedPhilosophers) {
+    const ctx = document.getElementById('barChart').getContext('2d');
+    const labels = sortedPhilosophers.map(entry => entry[0]);
+    const data = sortedPhilosophers.map(entry => entry[1]);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Philosopher Alignment Scores',
+                data: data,
+                backgroundColor: 'rgba(162, 155, 254, 0.5)',
+                borderColor: 'rgba(44, 62, 80, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 }
