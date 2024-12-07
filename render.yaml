@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: chinese-philosophy-quiz-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GPT_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://sam-mucyo.github.io
+    autoDeploy: true

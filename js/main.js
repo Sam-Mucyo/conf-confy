@@ -1,40 +1,25 @@
-const questions = [
-    {
-        question: "How do you view human nature?",
-        options: [
-            { text: "People are inherently good and can be guided to virtue", philosopher: "Mencius" },
-            { text: "People need education and ritual to become good", philosopher: "Xunzi" },
-            { text: "People should follow the natural way without interference", philosopher: "Laozi" },
-            { text: "People should focus on practical benefits for society", philosopher: "Mozi" }
-        ]
-    },
-    {
-        question: "What is the best approach to governance?",
-        options: [
-            { text: "Minimal intervention, letting things follow their natural course", philosopher: "Laozi" },
-            { text: "Strong institutions and clear social roles", philosopher: "Xunzi" },
-            { text: "Moral education and leading by example", philosopher: "Confucius" },
-            { text: "Promoting what benefits all people equally", philosopher: "Mozi" }
-        ]
-    },
-    {
-        question: "What is the most important virtue?",
-        options: [
-            { text: "Benevolence and human-heartedness (ren)", philosopher: "Confucius" },
-            { text: "Universal love and impartial care", philosopher: "Mozi" },
-            { text: "Spontaneity and naturalness", philosopher: "Zhuangzi" },
-            { text: "Ritual propriety and social order", philosopher: "Xunzi" }
-        ]
-    }
-];
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+    ? 'https://sam-mucyo.github.io/conf-confy/'
+    : 'http://localhost:8000';
+
 
 let currentQuestion = 0;
-let philosopherScores = {};
+let userAnswers = [];
 
-function startQuiz() {
-    document.querySelector('.start-screen').classList.remove('active');
-    document.querySelector('.quiz-section').classList.add('active');
-    showQuestion();
+// fetch calls to the API
+async function startQuiz() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/questions`);
+        const data = await response.json();
+        window.questions = data.questions;
+
+        document.querySelector('.start-screen').classList.remove('active');
+        document.querySelector('.quiz-section').classList.add('active');
+        showQuestion();
+    } catch (error) {
+        console.error('Error fetching questions:', error);
+        alert('Failed to load quiz questions. Please try again.');
+    }
 }
 
 function showQuestion() {
@@ -60,49 +45,45 @@ function updateProgress() {
     document.querySelector('.progress').style.width = `${progress}%`;
 }
 
-function selectOption(philosopher) {
-    philosopherScores[philosopher] = (philosopherScores[philosopher] || 0) + 1;
-
+async function selectOption(philosopher) {
+    userAnswers.push(philosopher);
     currentQuestion++;
 
     if (currentQuestion < questions.length) {
         showQuestion();
     } else {
-        showResults();
+        await showResults();
     }
 }
 
-function showResults() {
-    document.querySelector('.quiz-section').classList.remove('active');
-    document.querySelector('.results').style.display = 'block';
+async function showResults() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/analyze`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ answers: userAnswers })
+        });
+        const results = await response.json();
 
-    const sortedPhilosophers = Object.entries(philosopherScores)
-        .sort((a, b) => b[1] - a[1]);
+        const matchElement = document.querySelector('.philosopher-match');
+        matchElement.innerHTML = `
+            <h3>You align most with ${results.topPhilosopher}</h3>
+            <div class="ai-analysis">${results.aiAnalysis}</div>
+        `;
 
-    const topPhilosopher = sortedPhilosophers[0];
-
-    const philosopherDescriptions = {
-        "Mencius": "You believe in the inherent goodness of humanity and value compassion and moral growth.",
-        "Xunzi": "You value structure, discipline, and the transformative power of education.",
-        "Laozi": "You trust in simplicity and the natural flow of life.",
-        "Mozi": "You advocate for universal love and practical solutions to benefit society."
-    };
-
-    const matchElement = document.querySelector('.philosopher-match');
-
-    matchElement.innerHTML = `
-    <h3>You align most with ${topPhilosopher[0]}</h3>
-    <p>${philosopherDescriptions[topPhilosopher[0]]}</p>
-    <p>Score: ${topPhilosopher[1]} / ${questions.length}</p>
-`;
-
-    showBarChart(sortedPhilosophers);
+        showBarChart(results.scores);
+    } catch (error) {
+        console.error('Error getting results:', error);
+        alert('Failed to analyze results. Please try again.');
+    }
 }
 
-function showBarChart(sortedPhilosophers) {
+function showBarChart(scores) {
     const ctx = document.getElementById('barChart').getContext('2d');
-    const labels = sortedPhilosophers.map(entry => entry[0]);
-    const data = sortedPhilosophers.map(entry => entry[1]);
+    const labels = scores.map(entry => entry[0]);
+    const data = scores.map(entry => entry[1]);
 
     new Chart(ctx, {
         type: 'bar',
