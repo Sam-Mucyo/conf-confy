@@ -17,7 +17,7 @@
     </header>
 
     <div class="container">
-        <div class="start-screen active">
+        <div class="start-screen">
             <h2>Discover Your Philosophical Alignment</h2>
             <p>Answer questions to find which Classical Chinese philosopher you align with most.</p>
             <button onclick="startQuiz()">Begin Journey</button>
@@ -33,7 +33,10 @@
 
         <div class="results">
             <h2>Your Philosophical Alignment</h2>
-            <div class="philosopher-match"></div>
+            <div class="results-box">
+                <div class="philosopher-match"></div>
+                <button onclick="restartQuiz()">Restart Quiz</button>
+            </div>
             <canvas id="barChart" width="400" height="200"></canvas>
         </div>
     </div>
