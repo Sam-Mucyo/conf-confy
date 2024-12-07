@@ -1,9 +1,9 @@
 :root {
     --primary: #2c3e50;
     --secondary: #34495e;
-    --accent: #a29bfe; /* Adjusted to a more ethereal purple */
+    --accent: #a29bfe;
     --text: #2c3e50;
-    --background: #f4f1e0; /* Subtle parchment-like color */
+    --background: #f4f1e0;
     --highlight: #dfe6e9;
     --philosophy-red: #c0392b;
     --philosophy-green: #27ae60;
@@ -26,23 +26,24 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 2rem;
 }
 
 header {
     text-align: center;
-    padding: 2rem 0;
+    padding: 6rem 0;
     color: white;
+
+    background-image: url('../imgs/title-text-background.png');
+    background-size: 70vw 15vh;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 header h1 {
     margin: 0;
-    font-size: 2.5rem;
-    background-image: url('../imgs/title-text-background.png');
-    background-size: 60vw auto;
-    background-repeat: no-repeat;
-    background-position: center;
-
+    font-size: 4rem;
+    color: #454545;
+    font-family: "Nanum Brush Script", sans-serif;
 }
 
 .quiz-section {
