@@ -93,6 +93,7 @@ const questions = [
 
 let currentQuestion = 0;
 let philosopherScores = {};
+let barChartInstance;
 
 function startQuiz() {
     document.querySelector('.start-screen').style.display = 'none';
@@ -145,14 +146,14 @@ function showResults() {
     const topPhilosopher = sortedPhilosophers[0];
 
     const philosopherDescriptions = {
-        "Confucius": "You value harmony, respect for social roles, and self-cultivation through moral learning.",
-        "Mozi": "You advocate for universal love, impartial care, and practical solutions to benefit society.",
-        "Mencius": "You believe in the inherent goodness of humanity and value compassion and moral growth.",
-        "Laozi": "You trust in simplicity, non-interference, and the natural flow of life according to the Dao.",
-        "Zhuangzi": "You embrace spontaneity, freedom, and aligning yourself with the unpredictability of life.",
-        "Xunzi": "You value structure, discipline, and the transformative power of education and rituals.",
-        "Lord Shang": "You prioritize strict laws, discipline, and the strength of the state for maintaining order.",
-        "Han Feizi": "You believe in the necessity of absolute authority, strict laws, and pragmatic governance."
+        "Confucius": "You seem to value how one translates intentions into actions, as your philosopher friend Confucius says . You also find peace in rituals, a great quality to have. ",
+        "Mozi": "Your philosopher believed in the power of rational arguments and clear reasoning. You seem like the kind of person who values logical discussions and strives to make decisions based on compelling evidence. Mozi likes a socially strong society, and you also don’t seem to be that far from it. One thing you will appreciate about the philosopher you love is that he seems to want to regard other people in the same way that he regards his own, which is always a great quality to have.",
+        "Mencius": " Your philosopher once said, \"Treat your elders as elders, and extend it to the elders of others; treat your young ones as young ones and extend it to the young ones of others; then you can turn the whole world in the palm of your hand.\" (Mengzi 1A7). You seem to be the kind of person with empathy who cares for others and treats people with respect and kindness, the kind of traits your philosopher is known for. He once said, “Benevolence and righteousness, and that is all. Why must you say ‘profit’?\" (Mengzi 1A1). There is a lot to learn from your philosopher, and congrats on aligning with him.",
+        "Laozi": "As someone who aligns with Laozi, you likely appreciate the mystery of life. You also seem to be the kind of person with humility, and who would just go with the flow, it is not that bad!",
+        "Zhuangzi": "As someone who aligns with Zhuangzi, a philosopher whose teachings usually challenge conventional thoughts and human constructs. You likely think outside of the box and like aligning with how life flows. Of course, you can be paradoxical at times, and likely place great value in freedom.",
+        "Xunzi": "Like your philosopher, you are likely unease about bad intentions and conspiracies, you likely want to find common ground to work in harmony with people, compromising if necessary. These are great qualities to have! You may be unhappy with the current trend in politics all over the world, with people playing politics and not putting the public interest at first, we hope times will get better!",
+        "Lord Shang": "Like your philosopher you likely would want to see strict laws enforced to maintain rule and order, you probably think people are naturally self-interested and will only act in the interest of the state if incentives and punishments are extreme enough to override personal desires. It is important to understand that sometimes positive reinforcement works too, and not focusing on severe punishments can also realize the social order you seem to desperately want!",
+        "Han Feizi": "You seem to align most with Han Feizi, and would like equality in the law, wherever everyone is treated the same, whether they are a noble or normal, it is a great quality to have!"
     };
 
     const matchElement = document.querySelector('.philosopher-match');
@@ -160,10 +161,20 @@ function showResults() {
     matchElement.innerHTML = `
     <h3>You align most with ${topPhilosopher[0]}</h3>
     <p>${philosopherDescriptions[topPhilosopher[0]]}</p>
-    <p>Score: ${topPhilosopher[1]} / ${questions.length}</p>
 `;
-
     showBarChart(sortedPhilosophers);
+    highlightPhilosopher(topPhilosopher[0]);
+}
+
+function highlightPhilosopher(philosopher) {
+    // Remove glowing class from all images
+    document.querySelectorAll('.stickers img').forEach(img => img.classList.remove('glowing'));
+
+    // Add glowing class to the selected philosopher's image
+    const philosopherImg = document.getElementById(philosopher);
+    if (philosopherImg) {
+        philosopherImg.classList.add('glowing');
+    }
 }
 
 function showBarChart(sortedPhilosophers) {
@@ -171,12 +182,19 @@ function showBarChart(sortedPhilosophers) {
     const labels = sortedPhilosophers.map(entry => entry[0]);
     const data = sortedPhilosophers.map(entry => entry[1]);
 
-    new Chart(ctx, {
+    if (barChartInstance) {
+        barChartInstance.destroy();
+    }
+
+    barChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Philosopher Alignment Scores',
+                label: 'Your Alignment Graph',
+                font: {
+                    size: 16
+                },
                 data: data,
                 backgroundColor: 'rgba(162, 155, 254, 0.5)',
                 borderColor: 'rgba(44, 62, 80, 1)',
@@ -185,8 +203,38 @@ function showBarChart(sortedPhilosophers) {
         },
         options: {
             scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            weight: 'bold',
+                            size: 16
+                        }
+                    }
+                },
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        font: {
+                            size: 15
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 18, // Adjust font size of the main label in the legend
+                            weight: 'bold' // Optional: Make it bold
+                        }
+                    }
                 }
             }
         }
@@ -196,6 +244,14 @@ function showBarChart(sortedPhilosophers) {
 function restartQuiz() {
     currentQuestion = 0;
     philosopherScores = {};
+
+    if (barChartInstance) {
+        barChartInstance.destroy();
+        barChartInstance = null; // Clear the reference
+    }
+
+    document.querySelectorAll('.stickers img').forEach(img => img.classList.remove('glowing'));
+
     document.querySelector('.results').style.display = 'none';
     document.querySelector('.start-screen').style.display = 'block';
 
